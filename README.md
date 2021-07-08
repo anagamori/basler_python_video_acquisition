@@ -5,5 +5,5 @@ Python code to continuously acquire images from basler cameras (currently set up
 - Basler cameras
 - Arduino Uno
 ## Software
--Python 
+- Python 
 - Arduino IDE (if frame rate needs to be changed)
