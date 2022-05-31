@@ -74,7 +74,7 @@ def video_recording(queue,queue2,video_length,buffer_size,fps,count_video,mouse_
 current_directory = "C:\\Users\\anaga\\Documents\\GitHub\\python-arduino\\"
 
 mouse_ID = "AN04" 
-session_ID = "031112"
+session_ID = "031622"
 save_directory = "D:/JoystickExpts/data/"
 isdir = os.path.isdir(save_directory + mouse_ID + "/" + session_ID) 
 if not isdir:
@@ -94,7 +94,7 @@ for device in devices:
         cam2_idx = n
     n += 1
     
-exposureTime = 1000
+exposureTime = 500
 gain = 0
 ## Set up camera 1 (camera 1 will be whaterver computer detects first )
 camera1 = pylon.InstantCamera()

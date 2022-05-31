@@ -1,4 +1,4 @@
-unsigned long halfPeriod = 1000UL; // 5mS = 1/2 100 Hz 
+unsigned long halfPeriod = 2500UL; // 5mS = 1/2 100 Hz 
 // don't use a floating # for delay, delayMicroseconds
 void setup()
 {
