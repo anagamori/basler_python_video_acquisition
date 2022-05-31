@@ -2,8 +2,8 @@
 ## General descriptions 
 Python code to continuously acquire images from basler cameras (currently set up for two cameras) and save video files upon event trigger
 ## Hardware 
-Basler cameras
-Arduino Uno
+- Basler cameras
+- Arduino Uno
 ## Software
-Python 
-Arduino IDE (if frame rate needs to be changed)
+- Python 
+- Arduino IDE (if frame rate needs to be changed)
