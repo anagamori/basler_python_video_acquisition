@@ -82,9 +82,9 @@ def video_recording(queue,queue2,queue3,video_length,buffer_size,fps,count_video
 # Enter file info
 current_directory = "C:/Users/MNL-E/Documents/AKIRA/Python Code for Video"
 
-mouse_ID = "AN06" 
-session_ID = "040822"
-save_directory = "D:/JoystickExpts/data/"
+mouse_ID = "test" 
+session_ID = "090122"
+save_directory = "F:/JoystickExpts/data/"
 isdir = os.path.isdir(save_directory + mouse_ID + "/" + session_ID) 
 if not isdir:
     os.mkdir(save_directory + mouse_ID + "/" + session_ID)
@@ -163,8 +163,8 @@ camera3.Gain = gain
 
 # Set up acquisition parameters
 fps = 200 # frame per second
-video_length = 0.5*fps # the length of video in frames after event trigger 
-buffer_size = 0.5*fps # the size of buffer in frames that can be 
+video_length = 5*fps # the length of video in frames after event trigger 
+buffer_size = 3*fps # the size of buffer in frames that can be 
 
 
 # counter variablesq
@@ -215,8 +215,11 @@ while camera1.IsGrabbing():
     # Event detection and trigger video recording
     if enable == False and enable_prev == True:
         count_video += 1
+        start_time = time.perf_counter()
         (nFrame,queue,queue2,queue3) = video_recording(queue,queue2,queue3,video_length,buffer_size,fps,count_video,mouse_ID,session_ID)
         print('Video #' + str(count_video))   
+        finish_time = time.perf_counter()
+        print(f"Program finished in {finish_time-start_time} seconds")
     enable_prev = enable
     
     # When a user presses "q" on keyboard, abort recording and close cameras 

@@ -23,8 +23,8 @@ def current_milli_time():
 current_directory = "C:/Users/MNL-E/Documents/AKIRA/Python Code for Video"
 
 mouse_ID = "calibration" 
-session_ID = "video3"
-save_directory = "D:/JoystickExpts/data/"
+session_ID = "122222_2"
+save_directory = "F:/JoystickExpts/data/"
 
 isdir = os.path.isdir(save_directory + mouse_ID + "/" + session_ID) 
 if not isdir:
@@ -48,7 +48,7 @@ for device in devices:
     n += 1
     
 exposureTime = 500
-gain = 0
+gain = 5
 ## Set up camera 1 (camera 1 will be whaterver computer detects first )
 camera1 = pylon.InstantCamera()
 camera1.Attach(tlFactory.CreateDevice(devices[cam1_idx]))
@@ -68,6 +68,10 @@ camera1.TriggerMode.SetValue('On');
 # Additional parameteres 
 camera1.ExposureTime.SetValue(exposureTime)
 camera1.Gain = gain
+# camera1.Height = 512
+# camera1.Width = 512
+# camera1.CenterX()
+# camera1.CenterY()
 #camera1.Height = 528
 
 
@@ -83,6 +87,10 @@ camera2.TriggerMode.SetValue('On');
 # Additional parameteres 
 camera2.ExposureTime.SetValue(exposureTime)
 camera2.Gain = gain
+# camera2.Height = 512
+# camera2.Width = 512
+# camera2.CenterX()
+# camera2.CenterY()
 #camera2.Height = 528
 
 ## Set up camera 3 
@@ -101,6 +109,11 @@ camera3.TriggerMode.SetValue('On');
 # Additional parameteres 
 camera3.ExposureTime.SetValue(exposureTime)
 camera3.Gain = gain
+# camera3.Height = 512
+# camera3.Width = 512
+# camera3.CenterX()
+# camera3.CenterY()
+# camera3.OffsetX = 108
 #camera3.Height = 528
 #camera1.Width = 528
 

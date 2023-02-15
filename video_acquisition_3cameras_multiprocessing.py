@@ -17,33 +17,28 @@ import multiprocessing
 def current_milli_time():
     return time.time() * 1000
 
-def save_images(queue,queue2,queue3,mouse_ID,session_ID,count_video):
+# Function to save images 
+def save_images(camera_ID,queue,mouse_ID,session_ID,count_video):
+    #start_time = time.perf_counter()
     now = datetime.now()               
     date_time = now.strftime("%H-%M-%S")       
-    filename = mouse_ID + "_" + session_ID + "_" + str(count_video) + "_" + date_time + "_cam1"
+    filename = mouse_ID + "_" + session_ID + "_" + str(count_video) + "_" + date_time + "_cam" + camera_ID
     infile = open(filename, "wb" )
     cPickle.dump(queue,infile)
     infile.close()
     
-    filename = mouse_ID + "_" + session_ID + "_" + str(count_video) + "_"  + date_time + "_cam2"
-    infile = open(filename, "wb" )
-    cPickle.dump(queue2,infile)
-    infile.close()
-    
-    filename = mouse_ID + "_" + session_ID + "_" + str(count_video) + "_"  + date_time + "_cam3"
-    infile = open(filename, "wb" )
-    cPickle.dump(queue3,infile)
-    infile.close()
-    
+    #finish_time = time.perf_counter()
+    #print(f"Program finished in {finish_time-start_time} seconds")
+    print('Video #' + str(count_video))  
     print('Video acquired')    
 
 if __name__ == "__main__":
     # Enter file info
     current_directory = "C:/Users/MNL-E/Documents/AKIRA/Python Code for Video"
     
-    mouse_ID = "AN08" 
-    session_ID = "050622"
-    save_directory = "F:/JoystickExpts/data/"
+    mouse_ID = "AN663" 
+    session_ID = "012623"
+    save_directory = "F:\\JoystickExpts\\data\\"
     isdir = os.path.isdir(save_directory + mouse_ID + "/" + session_ID) 
     if not isdir:
         os.mkdir(save_directory + mouse_ID + "/" + session_ID)
@@ -63,15 +58,15 @@ if __name__ == "__main__":
             cam3_idx = n
         n += 1
     
-    exposureTime = 100
-    gain = 15
+    exposureTime = 500
+    gain = 5
     
     ## Set up camera 1 (camera 1 will be whaterver computer detects first )
     camera1 = pylon.InstantCamera()
     camera1.Attach(tlFactory.CreateDevice(devices[cam1_idx]))
     camera1.Open()
     # Set up a GPIO line for digital trigger for video recording 
-    # Note that this line has to be set up before frame trigger lines
+    # Note that this line has tcao be set up before frame trigger lines
     # Set to trigger at rising edge 
     
     # Set up a trigger line for image acquisition 
@@ -82,10 +77,10 @@ if __name__ == "__main__":
     # Additional parameteres 
     camera1.ExposureTime.SetValue(exposureTime)
     camera1.Gain = gain
-    camera1.Height = 512
-    camera1.Width = 512
-    camera1.OffsetX = 108
-    camera1.OffsetY = 16
+    # camera1.Height = 512
+    # camera1.Width = 512
+    # camera1.CenterX()
+    # camera1.CenterY()
     
     ## Set yo camera 2
     camera2 = pylon.InstantCamera()
@@ -102,10 +97,12 @@ if __name__ == "__main__":
     # Additional parameteres 
     camera2.ExposureTime.SetValue(exposureTime)
     camera2.Gain = gain
-    camera2.Height = 512
-    camera2.Width = 512
-    camera2.OffsetX = 108
-    camera2.OffsetY = 16
+    # camera2.Height = 512
+    # camera2.Width = 512
+    # camera2.CenterX()
+    # camera2.CenterY()
+    # camera2.OffsetX = 108
+    # camera2.OffsetY = 16
     
     ## Set up camera 3 
     camera3 = pylon.InstantCamera()
@@ -123,26 +120,35 @@ if __name__ == "__main__":
     # Additional parameteres 
     camera3.ExposureTime.SetValue(exposureTime)
     camera3.Gain = gain
-    camera3.Height = 512
-    camera3.Width = 512
-    camera3.OffsetX = 108
-    camera3.OffsetY = 16
+    # camera3.Height = 512
+    # camera3.Width = 512
+    # camera3.CenterX()
+    # camera3.CenterY()
+    # camera3.OffsetX = 108
+    # camera3.OffsetY = 16
     
     # Set up acquisition parameters
     fps = 200 # frame per second
-    video_length = 0.5*fps # the length of video in frames after event trigger 
-    buffer_size = 0.5*fps # the size of buffer in frames that can be 
+    video_length = 0.2*fps # the length of video in frames after event trigger 
+    buffer_size = 0.2*fps # the size of buffer in frames that can be 
     
     
-    # counter variablesq
+    # counter variables
     i = 0
     count_video = 0
+    flag_record = False
+    j = 0 # # of images taken after a trigger
+    k = 0 # # of triggers (i.e. # of trials )
     
     # Initialize empty queues 
     queue = deque([]) 
     queue2 = deque([])
     queue3 = deque([])
+    queue_new = deque([]) 
+    queue2_new = deque([])
+    queue3_new = deque([])
     trigger = deque([]) 
+    idx_trigger = deque([])
     time_vec = []
     
     # Start image acquisition
@@ -155,9 +161,9 @@ if __name__ == "__main__":
     
     while camera1.IsGrabbing():
         # Continuously grab acquired images 
-        grab = camera1.RetrieveResult(500, pylon.TimeoutHandling_ThrowException)
-        grab2 = camera2.RetrieveResult(500, pylon.TimeoutHandling_ThrowException)
-        grab3 = camera3.RetrieveResult(500, pylon.TimeoutHandling_ThrowException)
+        grab = camera1.RetrieveResult(1000, pylon.TimeoutHandling_ThrowException)
+        grab2 = camera2.RetrieveResult(1000, pylon.TimeoutHandling_ThrowException)
+        grab3 = camera3.RetrieveResult(1000, pylon.TimeoutHandling_ThrowException)
        
         # Get status of the first GPIO line 
         enable = camera2.LineStatus.GetValue()      
@@ -170,10 +176,7 @@ if __name__ == "__main__":
             queue2.append(grab2.GetArray())
             queue3.append(grab3.GetArray())
             trigger.append(enable)
-            grab.Release()  
-            grab2.Release() 
-            grab3.Release() 
-           
+          
         # When the number of images overflows the size of buffer, remove the oldest images 
         if len(queue) > buffer_size: 
             queue.popleft()
@@ -181,160 +184,87 @@ if __name__ == "__main__":
             queue3.popleft()
             trigger.popleft()
           
-        # Event detection and trigger video recording
-        if enable == False and enable_prev == True:
+        # Event detection (falling edge) and trigger video recording
+        # When evenet detection trigger is recieved and not in the middle of acquiring images for a preivous trial
+        if enable == False and enable_prev == True and j == 0:            
+            k = 1 # first trigger (i.e. first trial)
+            idx_trigger = deque([])
+            idx_trigger.append(0)
             flag_record = True
-            j = 0 # counter for the nuber of images acquired 
-            queue_new = queue
-            queue2_new = queue2
-            queue3_new = queue3            
+            # Create new buffers and fill them with images prior to the event 
+            queue_new = deque([]) 
+            queue2_new = deque([])
+            queue3_new = deque([])
+            queue_new += queue
+            queue2_new += queue2
+            queue3_new += queue3       
         
+        # When an evenet is detected while still acquiring images for a previous trial 
+        elif enable == False and enable_prev == True and j > 0 and j < int(video_length):
+            # Store timing of this new trigger (# of images acquired since the last trigger)
+            idx_trigger.append(j+idx_trigger[-1])
+            # Reset the counter for image counts
+            j = 0
+            # Increment trial counter 
+            k += 1
+        
+        # Keep appedning images when flag_record is true and the number of acquired images is less the target
         if flag_record == True and j < int(video_length):
             j += 1   
             queue_new.append(grab.GetArray())
             queue2_new.append(grab2.GetArray())
             queue3_new.append(grab3.GetArray()) 
-        elif j == int(video_length):
-            count_video += 1
-            flag_record = False
-            p = multiprocessing.Process(target=save_images(queue_new,queue_new,queue_new,mouse_ID,session_ID,count_video))
-            p.start()
             
+        # When # of images post trigger meets the user defined #, save the images 
+        elif j == int(video_length):       
+            
+            # Undo recording flag
+            flag_record = False
+            # Reset image counter 
+            j = 0 
+            
+            # # Clear queues 
+            # queue = deque([]) 
+            # queue2 = deque([])
+            # queue3 = deque([])
+            
+            # Break images in buffer into individual trials 
+            start_time2 = time.perf_counter()
+            for n in range(k):
+                queue_proc = deque([]) 
+                queue2_proc = deque([]) 
+                queue3_proc = deque([]) 
+                count_video += 1
+                
+                for m in range(int(video_length+buffer_size)):
+                    queue_proc.append(queue_new[m+idx_trigger[n]])
+                    queue2_proc.append(queue2_new[m+idx_trigger[n]])
+                    queue3_proc.append(queue3_new[m+idx_trigger[n]])
+              
+                camera_ID_1 = "1"
+                camera_ID_2 = "2"
+                camera_ID_3 = "3"
+                start_time = time.perf_counter()
+                p1 = multiprocessing.Process(target=save_images(camera_ID_1,queue_proc,mouse_ID,session_ID,count_video))
+                p1.start()                
+                p2 = multiprocessing.Process(target=save_images(camera_ID_2,queue2_proc,mouse_ID,session_ID,count_video))
+                p2.start()
+                p3 = multiprocessing.Process(target=save_images(camera_ID_3,queue3_proc,mouse_ID,session_ID,count_video))
+                p3.start()
+                # joint all processes seem required to simultaneously run them
+                # p1.join()
+                # p2.join()
+                # p3.join()
+                finish_time = time.perf_counter()
+                print(f"Program finished in {finish_time-start_time} seconds")
+                #p = multiprocessing.Process(target=save_images(queue_proc,queue2_proc,queue3_proc,mouse_ID,session_ID,count_video))
+                #p.start()
+            finish_time2 = time.perf_counter()
+            print(f"Program finished in {finish_time2-start_time2} seconds")
         grab.Release()  
         grab2.Release() 
         grab3.Release() 
         
-        if 'p' in locals() and p.is_alive():
-            p.terminate()
-            p.close()
-            
-            # k = 0 # counter for triggers
-            # idx_trigger = deque([]) 
-            # flag = False
-            # buffer_frame = len(queue)
-            
-            # while j <= int(video_length): 
-            #     j += 1 # frame number counter 
-            #     # Grab images from cameras
-            #     grab = camera1.RetrieveResult(500, pylon.TimeoutHandling_ThrowException)
-            #     grab2 = camera2.RetrieveResult(500, pylon.TimeoutHandling_ThrowException)
-            #     grab3 = camera3.RetrieveResult(500, pylon.TimeoutHandling_ThrowException)
-            
-            #     enable = camera2.LineStatus.GetValue()  
-                
-            #     # Add images to queues
-            #     queue.append(grab.GetArray())
-            #     queue2.append(grab2.GetArray())
-            #     queue3.append(grab3.GetArray())
-            #     trigger.append(enable)
-                
-            #     # Release grabber
-            #     grab.Release() 
-            #     grab2.Release()
-            #     grab3.Release()
-                
-            #     # if the next trial triggered before the previous ends
-            #     if enable == False and enable_prev == True:
-            #         flag = True
-            #         idx_trigger.append(j)
-            #         k += 1           
-                  
-            #     # When the number of frames reaches the specified value, save them as video files 
-            #     if j == int(video_length):    
-            #         # If another trigger didn't happen while acquiring the pre-specified number of images after the initial trigger
-            #         # save the images 
-            #         if flag == False and k == 0: # another tirgger never happened 
-            #             nFrame = len(queue) # check the number of frames used in video
-                                   
-            #             # Generate the name of video files based on time
-            #             now = datetime.now()               
-            #             date_time = now.strftime("%H-%M-%S")       
-                      
-                        
-            #             # Save image files into python files 
-            #             filename = mouse_ID + "_" + session_ID + "_" + str(count_video) + "_" + date_time + "_cam1"
-            #             infile = open(filename, "wb" )
-            #             cPickle.dump(queue,infile)
-            #             infile.close()
-                        
-            #             filename = mouse_ID + "_" + session_ID + "_" + str(count_video) + "_"  + date_time + "_cam2"
-            #             infile = open(filename, "wb" )
-            #             cPickle.dump(queue2,infile)
-            #             infile.close()
-                        
-            #             filename = mouse_ID + "_" + session_ID + "_" + str(count_video) + "_"  + date_time + "_cam3"
-            #             infile = open(filename, "wb" )
-            #             cPickle.dump(queue3,infile)
-            #             infile.close()
-                    
-                       
-            #             print('Video acquired')                            
-            #             # Empty variables 
-            #             queue = deque([])
-            #             queue2 = deque([])
-            #             queue3 = deque([])
-                    
-            #             count_video += 1
-            #             break
-            #         elif flag == False and k > 0: # another trigger(s) have happened 
-            #             nFrame = len(queue) # check the number of frames used in video
-    
-            #             for x in range(k+1):
-            #                 queue_new = deque([]) 
-            #                 queue2_new = deque([])
-            #                 queue3_new = deque([])
-            #                 if x == 0:
-            #                     for y in range(int(video_length+buffer_frame)):
-            #                         queue_new.append(queue[y])
-            #                         queue2_new.append(queue2[y])
-            #                         queue3_new.append(queue3[y])
-                                    
-            #                     idx = int(video_length+int(idx_trigger[x-1]))                      
-            #                 else:
-            #                     idx_start = int(buffer_frame)+int(idx_trigger[k-1])
-            #                     for y in range(idx_start,idx_start+int(video_length)+1):
-            #                         queue_new.append(queue[y])
-            #                         queue2_new.append(queue2[y])
-            #                         queue3_new.append(queue3[y])
-                                    
-            #                     idx = idx+int(video_length)-(int(video_length)-int(idx_trigger[x-1]))
-            #                 # Generate the name of video files based on time
-            #                 now = datetime.now()               
-            #                 date_time = now.strftime("%H-%M-%S")       
-                          
-                            
-            #                 # Save image files into python files 
-            #                 filename = mouse_ID + "_" + session_ID + "_" + str(count_video) + "_" + date_time + "_cam1"
-            #                 infile = open(filename, "wb" )
-            #                 cPickle.dump(queue_new,infile)
-            #                 infile.close()
-                            
-            #                 filename = mouse_ID + "_" + session_ID + "_" + str(count_video) + "_"  + date_time + "_cam2"
-            #                 infile = open(filename, "wb" )
-            #                 cPickle.dump(queue2_new,infile)
-            #                 infile.close()
-                            
-            #                 filename = mouse_ID + "_" + session_ID + "_" + str(count_video) + "_"  + date_time + "_cam3"
-            #                 infile = open(filename, "wb" )
-            #                 cPickle.dump(queue3_new,infile)
-            #                 infile.close()
-                            
-            #                 count_video += 1               
-                       
-            #             print('Video acquired')                            
-            #             # Empty variables 
-            #             queue = deque([])
-            #             queue2 = deque([])
-            #             queue3 = deque([])
-                        
-            #             break
-            #         elif flag == True: # Another trigger has happened while acquiring images  
-            #             j = video_length-idx_trigger[k-1]-1 # reset counter to the number of missing images to be recorded for the next video  
-            #             flag = False                             
-                        
-                        
-            #     enable_prev = enable
-            # print('Video #' + str(count_video))   
         enable_prev = enable
         
         # When a user presses "q" on keyboard, abort recording and close cameras 

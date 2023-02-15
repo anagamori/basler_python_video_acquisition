@@ -15,14 +15,15 @@ ext = '.avi'
 fps = 200
 
 # Enter session information
-mouse_ID = "AN08" 
-session_ID = "050622"
-save_directory = "D:\\JoystickExpts\\data\\"
+mouse_ID = "AN663" 
+session_ID = "012623"
+save_directory = "F:\\JoystickExpts\\data\\"
 os.chdir(save_directory + mouse_ID + "\\" + session_ID)
 
 onlyfiles = [f for f in listdir(save_directory + mouse_ID + "\\" + session_ID) if isfile(join(save_directory + mouse_ID + "\\" + session_ID,f))]
 
 for i in range(len(onlyfiles)):
+    print('Processing ' + str(i) +'/' + str(len(onlyfiles)))
     filename = onlyfiles[i]
     infile = open(filename, "rb" )
     data = cPickle.load(infile)
